@@ -1,5 +1,32 @@
 version: 2.1
 
+# MURMURATION PSEUDOCODE
+jobs: #Include a new job 'terraform'. This job would be added to workflow to run on commit
+  terraform:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: 'us-east-1' 
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.2.0
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Plan
+      run: terraform plan
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
+
+
 # -------------------------------------------------------------------------------------
 # environments where we run our jobs
 # -------------------------------------------------------------------------------------
@@ -9,7 +36,7 @@ executors:
       - image: cimg/python:3.9.16
     environment:
       PYTHONUNBUFFERED: 1
-    resource_class: xlarge
+    resource_class: medium #resource_class: xlarge
 
   small_cpu39:
     docker:
@@ -299,9 +326,9 @@ commands:
          condition: << parameters.deploy >>
          steps:
          - run:
-             working_directory: ~/ParlAI/
+             working_directory: ~/ParlAI/ #/terraform
              name: Upload the website
-             command: |
+             command: | #replace with terraform. terraform apply --auto-approve  terraform uploads assets
                pip install s3cmd
                s3cmd --access_key="${S3_ACCESS_KEY}" --secret_key="${S3_SECRET_KEY}" sync -f --delete-removed website/build/ "s3://parl.ai/"
                s3cmd --access_key="${S3_ACCESS_KEY}" --secret_key="${S3_SECRET_KEY}" setacl --acl-public --recursive "s3://parl.ai/"

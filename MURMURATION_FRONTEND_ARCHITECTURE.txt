@@ -1,0 +1,14 @@
+Please see "parlai-architecture.drawio" for architecure diagram. 
+
+Thoughts/Challenges
+
+Provider/IaC: I chose AWS for a cloud provider, as that is what Murmuration uses, and Terraform for IaC. Terraform's declarative syntx
+and easy integration of scripts makes it an attractive choice.
+Static content vs Python application: The website for this application is essentially a robust README. The application's functionality
+is utilized from command line. So I decided to host the static site in an s3 bucket while deploying the actual applicaiton to an 
+linux EC2 machine.
+Requirements: Lite LLM required a higher version of openai than specified by the requirements.txt file. I handled this by updating the
+requirements.txt file in the bootstrap shell script that runs with Terraform. 
+Testing CI pipeline: I wanted to make a fully functional config filehe build takes up more storage than is granted by CiecleCI's 
+free tier, so I had to rely entirely on pseudocode. Additionally, the size of Docker container needed for part of the build is not
+available on CircleCi's free tier. 
